@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartBI – Nordeste Vendas</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     LOADING SCREEN
+     ══════════════════════════════════════════════════════════ -->
+<div class="loading" id="loadingScreen">
+  <div class="loader-logo">📊</div>
+  <div class="loader-title">SmartBI</div>
+  <div class="loader-sub">Carregando dados da Nordeste Vendas…</div>
+  <div class="loader-bar-track">
+    <div class="loader-bar"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SIDEBAR
+     ══════════════════════════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">📊</div>
+    <div class="logo-text">
+      <div class="logo-title">SmartBI</div>
+      <div class="logo-sub">Nordeste Vendas</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-label">Principal</div>
+    <button class="nav-item active" data-page="dashboard">
+      <span class="nav-icon">🏠</span> Dashboard
+    </button>
+    <button class="nav-item" data-page="produtos">
+      <span class="nav-icon">📦</span> Produtos
+    </button>
+    <button class="nav-item" data-page="filiais">
+      <span class="nav-icon">🏪</span> Filiais
+    </button>
+    <button class="nav-item" data-page="clientes">
+      <span class="nav-icon">👥</span> Clientes
+    </button>
+
+    <div class="nav-label">Análise</div>
+    <button class="nav-item" data-page="previsao">
+      <span class="nav-icon">🔮</span> Previsão
+    </button>
+    <button class="nav-item" data-page="metas">
+      <span class="nav-icon">🎯</span> Metas &amp; KPIs
+    </button>
+    <button class="nav-item" data-page="relatorios">
+      <span class="nav-icon">📄</span> Relatórios
+      <span class="nav-badge">2</span>
+    </button>
+
+    <div class="nav-label">Sistema</div>
+    <button class="nav-item" data-page="configuracoes">
+      <span class="nav-icon">⚙️</span> Configurações
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-avatar">GA</div>
+      <div class="user-info">
+        <div class="user-name">Gerência Admin</div>
+        <div class="user-role">Acesso total</div>
+      </div>
+      <span style="color:var(--text-muted);font-size:14px">⚙</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ══════════════════════════════════════════════════════════
+     MAIN
+     ══════════════════════════════════════════════════════════ -->
+<div class="main">
+
+  <!-- HEADER -->
+  <header class="header">
+    <button class="menu-toggle" style="display:none">☰</button>
+    <div class="header-title">
+      <h1>Dashboard</h1>
+      <p>Visão geral da operação em tempo real</p>
+    </div>
+    <div class="header-actions">
+      <!-- Period selector (visible on dashboard) -->
+      <div class="period-selector" id="periodSelector">
+        <button class="period-btn" data-periodo="semana">7D</button>
+        <button class="period-btn active" data-periodo="mes">30D</button>
+        <button class="period-btn" data-periodo="ano">Ano</button>
+      </div>
+
+      <!-- Live clock -->
+      <div style="font-size:12px;color:var(--text-dim);font-family:var(--mono);padding:0 4px" id="liveClock">--:--:--</div>
+
+      <!-- Export -->
+      <button class="btn btn-ghost btn-sm" onclick="openModal('exportModal')">⬇ Exportar</button>
+
+      <!-- Notifications -->
+      <button class="notif-btn" onclick="showToast('5 alertas de estoque crítico', 'warning')">
+        🔔
+        <div class="notif-badge"></div>
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <!-- ════════════════════════════════════════════════════
+         PAGE: DASHBOARD
+         ════════════════════════════════════════════════════ -->
+    <div class="page active" id="page-dashboard">
+
+      <!-- KPI Grid -->
+      <div class="kpi-grid">
+        <div class="kpi-card" id="kpiFaturamento">
+          <span class="kpi-icon">💰</span>
+          <div class="kpi-label">Faturamento</div>
+          <div class="kpi-value">R$ 1.248.390</div>
+          <div class="kpi-delta up">↑ +18,7%</div>
+          <div class="text-dim" style="font-size:11px;margin-top:4px" class="kpi-vs">vs mês anterior</div>
+        </div>
+        <div class="kpi-card blue" id="kpiPedidos">
+          <span class="kpi-icon">🛒</span>
+          <div class="kpi-label">Pedidos</div>
+          <div class="kpi-value">8.241</div>
+          <div class="kpi-delta up">↑ +14,2%</div>
+          <div class="text-dim" style="font-size:11px;margin-top:4px" class="kpi-vs">vs mês anterior</div>
+        </div>
+        <div class="kpi-card yellow" id="kpiTicket">
+          <span class="kpi-icon">🧾</span>
+          <div class="kpi-label">Ticket Médio</div>
+          <div class="kpi-value">R$ 151,48</div>
+          <div class="kpi-delta up">↑ +3,9%</div>
+          <div class="text-dim" style="font-size:11px;margin-top:4px" class="kpi-vs">vs mês anterior</div>
+        </div>
+        <div class="kpi-card purple" id="kpiClientes">
+          <span class="kpi-icon">👥</span>
+          <div class="kpi-label">Clientes Ativos</div>
+          <div class="kpi-value">5.872</div>
+          <div class="kpi-delta up">↑ +6,3%</div>
+          <div class="text-dim" style="font-size:11px;margin-top:4px" class="kpi-vs">vs mês anterior</div>
+        </div>
+        <div class="kpi-card" id="kpiDevolucoes">
+          <span class="kpi-icon">↩️</span>
+          <div class="kpi-label">Devoluções</div>
+          <div class="kpi-value">2,1%</div>
+          <div class="kpi-delta up">↑ -0,6pp</div>
+          <div class="text-dim" style="font-size:11px;margin-top:4px" class="kpi-vs">vs mês anterior</div>
+        </div>
+        <div class="kpi-card" id="kpiMargem">
+          <span class="kpi-icon">📈</span>
+          <div class="kpi-label">Margem Bruta</div>
+          <div class="kpi-value">33,8%</div>
+          <div class="kpi-delta up">↑ +0,9pp</div>
+          <div class="text-dim" style="font-size:11px;margin-top:4px" class="kpi-vs">vs mês anterior</div>
+        </div>
+      </div>
+
+      <!-- Vendas Chart + Categorias -->
+      <div class="grid-21 mb-24">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Evolução de Vendas</div>
+              <div class="card-subtitle">Comparativo com período anterior</div>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="chartVendas"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Por Categoria</div>
+              <div class="card-subtitle">Participação no faturamento</div>
+            </div>
+          </div>
+          <div class="chart-wrap-sm" style="height:180px">
+            <canvas id="chartCategorias"></canvas>
+          </div>
+          <div id="legendaCategorias" class="legend" style="margin-top:16px"></div>
+        </div>
+      </div>
+
+      <!-- Pico + Atividades + Alertas -->
+      <div class="grid-3 mb-24">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Horários de Pico</div>
+              <div class="card-subtitle">Pedidos por hora do dia</div>
+            </div>
+          </div>
+          <div class="chart-wrap-sm">
+            <canvas id="chartHorasPico"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Atividade Recente</div>
+          </div>
+          <div class="feed" id="feedAtividades"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">⚠️ Alertas de Estoque</div>
+              <div class="card-subtitle">Produtos abaixo do mínimo</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px" id="alertasEstoque"></div>
+        </div>
+      </div>
+
+    </div><!-- /page-dashboard -->
+
+
+    <!-- ════════════════════════════════════════════════════
+         PAGE: PRODUTOS
+         ════════════════════════════════════════════════════ -->
+    <div class="page" id="page-produtos">
+      <div class="page-header">
+        <h2>📦 Análise de Produtos</h2>
+        <p>Ranking de desempenho, margem e controle de estoque</p>
+      </div>
+
+      <div class="grid-21 mb-24">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Top 5 por Receita</div>
+              <div class="card-subtitle">Produtos com maior faturamento</div>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="chartProdutos"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Resumo</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="rank-list" id="topProdutosRank">
+              <!-- Filled by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Todos os Produtos</div>
+            <div class="card-subtitle">Top 10 por receita acumulada</div>
+          </div>
+          <div class="search-bar" style="width:280px">
+            <span>🔍</span>
+            <input type="text" placeholder="Buscar produto…" oninput="handleSearch(this.value, 'produtos')">
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Produto</th>
+                <th>Vendas (un.)</th>
+                <th>Receita</th>
+                <th>Margem</th>
+                <th>Estoque</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaProdutos"></tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /page-produtos -->
+
+
+    <!-- ════════════════════════════════════════════════════
+         PAGE: FILIAIS
+         ════════════════════════════════════════════════════ -->
+    <div class="page" id="page-filiais">
+      <div class="page-header">
+        <h2>🏪 Desempenho de Filiais</h2>
+        <p>Comparativo entre as 8 unidades da Nordeste Vendas</p>
+      </div>
+
+      <!-- Cards de filiais -->
+      <div class="filial-grid mb-24" id="filialCards"></div>
+
+      <div class="grid-21 mb-24">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Faturamento por Filial</div>
+              <div class="card-subtitle">Mês atual</div>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="chartFiliais"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Radar de Performance</div>
+              <div class="card-subtitle">Top 3 filiais</div>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="chartMetasRadar"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Tabela Detalhada</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Filial</th>
+                <th>Cidade</th>
+                <th>Faturamento</th>
+                <th>Crescimento</th>
+                <th>Pedidos</th>
+                <th>Ticket Médio</th>
+                <th>Meta</th>
+                <th>Gerente</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaFiliais"></tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /page-filiais -->
+
+
+    <!-- ════════════════════════════════════════════════════
+         PAGE: CLIENTES
+         ════════════════════════════════════════════════════ -->
+    <div class="page" id="page-clientes">
+      <div class="page-header">
+        <h2>👥 Base de Clientes</h2>
+        <p>Segmentação RFM, LTV e comportamento de compra</p>
+      </div>
+
+      <div class="grid-2 mb-24">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Segmentação RFM</div>
+              <div class="card-subtitle">Recência, Frequência e Valor</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+            <div style="width:180px;height:180px;flex-shrink:0">
+              <canvas id="chartRFM"></canvas>
+            </div>
+            <div class="legend flex-1" id="legendaRFM"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Forma de Pagamento</div>
+              <div class="card-subtitle">% do total de vendas</div>
+            </div>
+          </div>
+          <div class="chart-wrap-sm">
+            <canvas id="chartPagamentos"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Lista de Clientes</div>
+            <div class="card-subtitle">Principais clientes por LTV</div>
+          </div>
+          <div class="search-bar" style="width:280px">
+            <span>🔍</span>
+            <input type="text" placeholder="Buscar cliente…" oninput="handleSearch(this.value, 'clientes')">
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Segmento</th>
+                <th>Pedidos</th>
+                <th>LTV</th>
+                <th>Ticket Médio</th>
+                <th>Última Compra</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaClientes"></tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /page-clientes -->
+
+
+    <!-- ════════════════════════════════════════════════════
+         PAGE: PREVISÃO
+         ════════════════════════════════════════════════════ -->
+    <div class="page" id="page-previsao">
+      <div class="page-header">
+        <h2>🔮 Previsão de Vendas</h2>
+        <p>Projeções inteligentes baseadas em histórico e sazonalidade</p>
+      </div>
+
+      <div id="previsaoInfo"></div>
+
+      <div class="card mb-24">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Projeção para os Próximos 9 Meses</div>
+            <div class="card-subtitle">Três cenários: Otimista, Realista e Pessimista</div>
+          </div>
+          <div class="d-flex align-center gap-8">
+            <span class="badge badge-success">Precisão: 94,2%</span>
+          </div>
+        </div>
+        <div class="chart-wrap-lg">
+          <canvas id="chartPrevisao"></canvas>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="card">
+          <div class="kpi-label">📈 Cenário Otimista</div>
+          <div class="kpi-value text-accent">R$ 2.340k</div>
+          <div class="kpi-delta up">↑ +9,3% vs realista</div>
+          <div class="text-dim" style="font-size:12px;margin-top:8px">Crescimento mantido + sazonalidade Dez</div>
+        </div>
+        <div class="card">
+          <div class="kpi-label">📊 Cenário Realista</div>
+          <div class="kpi-value text-blue">R$ 2.140k</div>
+          <div class="kpi-delta neutral">→ Projeção base</div>
+          <div class="text-dim" style="font-size:12px;margin-top:8px">Baseado nos últimos 12 meses</div>
+        </div>
+        <div class="card">
+          <div class="kpi-label">📉 Cenário Pessimista</div>
+          <div class="kpi-value text-warning">R$ 1.940k</div>
+          <div class="kpi-delta down">↓ -9,3% vs realista</div>
+          <div class="text-dim" style="font-size:12px;margin-top:8px">Retração de mercado + concorrência</div>
+        </div>
+      </div>
+    </div><!-- /page-previsao -->
+
+
+    <!-- ════════════════════════════════════════════════════
+         PAGE: METAS
+         ════════════════════════════════════════════════════ -->
+    <div class="page" id="page-metas">
+      <div class="page-header">
+        <h2>🎯 Metas e KPIs</h2>
+        <p>Acompanhamento dos indicadores estratégicos do mês</p>
+      </div>
+
+      <div class="stat-row" id="metasSummary"></div>
+
+      <div class="card mb-24">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Progresso das Metas – Junho 2025</div>
+            <div class="card-subtitle">8 indicadores monitorados</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="openModal('exportModal')">⬇ Exportar</button>
+        </div>
+        <div class="meta-bar-wrap" id="metasList"></div>
+      </div>
+
+      <!-- Metas por filial -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Meta de Faturamento por Filial</div>
+          <div class="card-subtitle">% de atingimento no mês</div>
+        </div>
+        <div class="meta-bar-wrap">
+          <!-- Dynamic from filiais data -->
+          <div id="metasFiliais"></div>
+        </div>
+      </div>
+    </div><!-- /page-metas -->
+
+
+    <!-- ════════════════════════════════════════════════════
+         PAGE: RELATÓRIOS
+         ════════════════════════════════════════════════════ -->
+    <div class="page" id="page-relatorios">
+      <div class="page-header">
+        <h2>📄 Central de Relatórios</h2>
+        <p>Geração automática, histórico e exportação de dados</p>
+      </div>
+
+      <div class="grid-21 mb-24">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Faturamento Mensal 2025</div>
+              <div class="card-subtitle">Evolução ao longo do ano</div>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="chartRelatorios"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Gerar Novo Relatório</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="form-group">
+              <label class="form-label">Tipo de Relatório</label>
+              <select class="form-input">
+                <option>Desempenho de Vendas</option>
+                <option>Análise de Produtos</option>
+                <option>Comparativo de Filiais</option>
+                <option>Segmentação de Clientes</option>
+                <option>Controle de Estoque</option>
+                <option>Previsão de Receita</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Período</label>
+              <select class="form-input">
+                <option>Junho 2025</option>
+                <option>Maio 2025</option>
+                <option>Q2 2025 (Abr–Jun)</option>
+                <option>Q1 2025 (Jan–Mar)</option>
+                <option>Anual 2025</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Formato de Saída</label>
+              <select class="form-input">
+                <option>PDF</option>
+                <option>Excel (.xlsx)</option>
+                <option>CSV</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" style="width:100%" onclick="showToast('📊 Relatório agendado para geração!', 'success')">
+              ⚡ Gerar Relatório
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Histórico de Relatórios</div>
+            <div class="card-subtitle">Últimos relatórios gerados</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="showToast('📊 Relatório agendado para geração!','success')">
+            + Novo Relatório
+          </button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Relatório</th>
+                <th>Tipo</th>
+                <th>Data</th>
+                <th>Formato</th>
+                <th>Tamanho</th>
+                <th>Status</th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaRelatorios"></tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /page-relatorios -->
+
+
+    <!-- ════════════════════════════════════════════════════
+         PAGE: CONFIGURAÇÕES
+         ════════════════════════════════════════════════════ -->
+    <div class="page" id="page-configuracoes">
+      <div class="page-header">
+        <h2>⚙️ Configurações</h2>
+        <p>Preferências do sistema e gerenciamento de usuários</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Informações da Empresa</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="form-group">
+              <label class="form-label">Nome da Empresa</label>
+              <input type="text" class="form-input" value="Nordeste Vendas S.A.">
+            </div>
+            <div class="form-group">
+              <label class="form-label">CNPJ</label>
+              <input type="text" class="form-input" value="12.345.678/0001-99">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Segmento</label>
+              <select class="form-input">
+                <option selected>Varejo Multicanal</option>
+                <option>Atacado</option>
+                <option>E-commerce</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Moeda</label>
+              <select class="form-input">
+                <option selected>BRL – Real Brasileiro</option>
+                <option>USD – Dólar</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="showToast('✅ Configurações salvas!', 'success')">Salvar Alterações</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Usuários do Sistema</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            
+              <div class="d-flex align-center gap-12" style="padding:10px;border-radius:8px;background:var(--surface2)">
+                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#a78bfa,#00b8ff);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">GA</div>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:600">Gerência Admin</div>
+                  <div style="font-size:11px;color:var(--text-dim)">admin@nordestevendas.com</div>
+                </div>
+                <span class="badge badge-info">Administrador</span>
+              </div>
+              <div class="d-flex align-center gap-12" style="padding:10px;border-radius:8px;background:var(--surface2)">
+                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#00e5a0,#00b8ff);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">AC</div>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:600">Ana Cavalcanti</div>
+                  <div style="font-size:11px;color:var(--text-dim)">ana@nordestevendas.com</div>
+                </div>
+                <span class="badge badge-info">Analista BI</span>
+              </div>
+              <div class="d-flex align-center gap-12" style="padding:10px;border-radius:8px;background:var(--surface2)">
+                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#ffd93d,#f59e0b);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">CM</div>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:600">Carlos Mendonça</div>
+                  <div style="font-size:11px;color:var(--text-dim)">carlos@nordestevendas.com</div>
+                </div>
+                <span class="badge badge-info">Gerente Reg.</span>
+              </div>
+              <div class="d-flex align-center gap-12" style="padding:10px;border-radius:8px;background:var(--surface2)">
+                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#ff6b6b,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">MS</div>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:600">Mariana Santos</div>
+                  <div style="font-size:11px;color:var(--text-dim)">mariana@nordestevendas.com</div>
+                </div>
+                <span class="badge badge-info">Supervisor</span>
+              </div>
+            <button class="btn btn-ghost btn-sm" style="margin-top:4px" onclick="showToast('➕ Convite enviado!', 'success')">+ Convidar usuário</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Alertas Automáticos</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            
+            <div class="d-flex align-center gap-12">
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600">Estoque abaixo do mínimo</div>
+                <div style="font-size:11px;color:var(--text-dim)">Notificar quando produto &lt; estoque mínimo</div>
+              </div>
+              <div style="width:40px;height:22px;border-radius:99px;background:var(--accent);border:1px solid var(--accent);cursor:pointer;position:relative;transition:all 0.22s;">
+                <div style="position:absolute;top:2px;left:20px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left 0.22s;"></div>
+              </div>
+            </div>
+            <div class="d-flex align-center gap-12">
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600">Meta diária não atingida</div>
+                <div style="font-size:11px;color:var(--text-dim)">Alerta às 18h se meta do dia &lt; 80%</div>
+              </div>
+              <div style="width:40px;height:22px;border-radius:99px;background:var(--accent);border:1px solid var(--accent);cursor:pointer;position:relative;transition:all 0.22s;">
+                <div style="position:absolute;top:2px;left:20px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left 0.22s;"></div>
+              </div>
+            </div>
+            <div class="d-flex align-center gap-12">
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600">Cliente sem compra há 60 dias</div>
+                <div style="font-size:11px;color:var(--text-dim)">Relatório semanal de clientes inativos</div>
+              </div>
+              <div style="width:40px;height:22px;border-radius:99px;background:var(--surface2);border:1px solid var(--border2);cursor:pointer;position:relative;transition:all 0.22s;">
+                <div style="position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left 0.22s;"></div>
+              </div>
+            </div>
+            <div class="d-flex align-center gap-12">
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600">Faturamento recorde</div>
+                <div style="font-size:11px;color:var(--text-dim)">Celebre quando bater novo recorde histórico</div>
+              </div>
+              <div style="width:40px;height:22px;border-radius:99px;background:var(--accent);border:1px solid var(--accent);cursor:pointer;position:relative;transition:all 0.22s;">
+                <div style="position:absolute;top:2px;left:20px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left 0.22s;"></div>
+              </div>
+            </div>
+            <div class="d-flex align-center gap-12">
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600">Relatório mensal automático</div>
+                <div style="font-size:11px;color:var(--text-dim)">Gerar e enviar no primeiro dia do mês</div>
+              </div>
+              <div style="width:40px;height:22px;border-radius:99px;background:var(--accent);border:1px solid var(--accent);cursor:pointer;position:relative;transition:all 0.22s;">
+                <div style="position:absolute;top:2px;left:20px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left 0.22s;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Integrações</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            
+              <div class="d-flex align-center gap-12" style="padding:10px;border-radius:8px;background:var(--surface2)">
+                <span style="font-size:20px">🗄️</span>
+                <span style="flex:1;font-size:13px;font-weight:600">MySQL Database</span>
+                <span class="badge badge-success">Conectado</span>
+              </div>
+              <div class="d-flex align-center gap-12" style="padding:10px;border-radius:8px;background:var(--surface2)">
+                <span style="font-size:20px">☁️</span>
+                <span style="flex:1;font-size:13px;font-weight:600">AWS S3 Storage</span>
+                <span class="badge badge-success">Conectado</span>
+              </div>
+              <div class="d-flex align-center gap-12" style="padding:10px;border-radius:8px;background:var(--surface2)">
+                <span style="font-size:20px">📊</span>
+                <span style="flex:1;font-size:13px;font-weight:600">Power BI Embed</span>
+                <span class="badge badge-success">Conectado</span>
+              </div>
+              <div class="d-flex align-center gap-12" style="padding:10px;border-radius:8px;background:var(--surface2)">
+                <span style="font-size:20px">📧</span>
+                <span style="flex:1;font-size:13px;font-weight:600">SendGrid Email</span>
+                <span class="badge badge-warning">Configurar</span>
+              </div>
+              <div class="d-flex align-center gap-12" style="padding:10px;border-radius:8px;background:var(--surface2)">
+                <span style="font-size:20px">📱</span>
+                <span style="flex:1;font-size:13px;font-weight:600">WhatsApp Business API</span>
+                <span class="badge badge-warning">Configurar</span>
+              </div>
+              <div class="d-flex align-center gap-12" style="padding:10px;border-radius:8px;background:var(--surface2)">
+                <span style="font-size:20px">💳</span>
+                <span style="flex:1;font-size:13px;font-weight:600">Stripe Payments</span>
+                <span class="badge badge-danger">Desconectado</span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /page-configuracoes -->
+
+  </main>
+</div><!-- /main -->
+
+
+<!-- ══════════════════════════════════════════════════════════
+     EXPORT MODAL
+     ══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="exportModal">
+  <div class="modal">
+    <div class="modal-title">⬇ Exportar Dados</div>
+    <div class="modal-sub">Escolha o formato de exportação para este relatório</div>
+    <div class="export-options">
+      <div class="export-option" onclick="exportData('pdf')">
+        <div class="icon">📄</div>
+        <div class="label">PDF</div>
+        <div class="desc">Relatório formatado</div>
+      </div>
+      <div class="export-option" onclick="exportData('excel')">
+        <div class="icon">📊</div>
+        <div class="label">Excel</div>
+        <div class="desc">Planilha editável</div>
+      </div>
+      <div class="export-option" onclick="exportData('csv')">
+        <div class="icon">📋</div>
+        <div class="label">CSV</div>
+        <div class="desc">Dados brutos</div>
+      </div>
+      <div class="export-option" onclick="exportData('print')">
+        <div class="icon">🖨️</div>
+        <div class="label">Imprimir</div>
+        <div class="desc">Versão impressa</div>
+      </div>
+    </div>
+    <div class="d-flex gap-8">
+      <button class="btn btn-ghost flex-1" onclick="closeModal('exportModal')">Cancelar</button>
+      <button class="btn btn-primary flex-1" onclick="exportData('pdf')">⬇ Exportar PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="js/data.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/app.js"></script>
+
+<!-- Inline: render metas filiais after DOM is ready -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Render metas filiais inline
+  const metasFiliais = document.getElementById('metasFiliais');
+  if (metasFiliais && typeof DATA !== 'undefined') {
+    metasFiliais.innerHTML = DATA.filiais.map(f => {
+      const cls = f.meta >= 100 ? 'over' : f.meta >= 80 ? 'under' : 'low';
+      const fillCls = f.meta >= 100 ? '' : f.meta >= 80 ? 'blue' : 'warning';
+      return `
+        <div class="meta-row">
+          <div class="meta-row-header">
+            <span class="meta-row-name">${f.nome}</span>
+            <div class="d-flex align-center gap-8">
+              <span class="text-dim" style="font-size:11px">${f.faturamento}</span>
+              <span class="meta-row-pct ${cls}">${f.meta}%</span>
+            </div>
+          </div>
+          <div class="progress-bar" style="height:8px">
+            <div class="progress-fill ${fillCls}" style="width:${Math.min(f.meta,100)}%"></div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // Render top products rank on sidebar of produtos page
+  const topRank = document.getElementById('topProdutosRank');
+  if (topRank && typeof DATA !== 'undefined') {
+    topRank.innerHTML = DATA.topProdutos.slice(0,5).map(p => `
+      <div class="rank-item">
+        <div class="rank-num ${p.rank===1?'top':''}">${p.rank}</div>
+        <div class="rank-info">
+          <div class="rank-name">${p.nome}</div>
+          <div class="rank-sub">${p.categoria}</div>
+        </div>
+        <div class="rank-val">${p.receita}</div>
+      </div>`).join('');
+  }
+});
+</script>
+
+</body>
+</html>
